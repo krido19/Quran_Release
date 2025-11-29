@@ -112,4 +112,44 @@ Agar tidak perlu install Android Studio di laptop (berat), gunakan GitHub Action
 
 ---
 
+## 7. Deployment (Play Store)
+
+Berikut adalah langkah-langkah untuk membuat file release (AAB) yang siap diupload ke Google Play Store.
+
+### A. Persiapan Environment
+Pastikan sudah terinstall:
+1.  **Java JDK 21** (Wajib untuk Capacitor 7 / Gradle 8+).
+2.  **Android SDK** (Command Line Tools & SDK Platform).
+
+### B. Build Command
+Jalankan perintah berikut di terminal (root project):
+
+```bash
+# 1. Build React App
+npm run build
+
+# 2. Sync ke Android
+npx cap sync
+
+# 3. Build Release Bundle (AAB)
+cd android
+./gradlew bundleRelease
+```
+
+### C. File Penting (JANGAN HILANG!)
+Saat build release, sistem menggunakan Keystore yang sudah digenerate.
+
+-   **Keystore File**: `android/app/upload-keystore.jks`
+-   **Password**: `android`
+-   **Key Alias**: `upload`
+-   **Key Password**: `android`
+
+> **PERINGATAN KERAS**: Simpan file `upload-keystore.jks` di tempat aman (Google Drive, dll). Jika file ini hilang, **Anda tidak akan pernah bisa update aplikasi ini lagi** di Play Store.
+
+### D. Upload ke Play Console
+1.  File hasil build ada di: `android/app/build/outputs/bundle/release/app-release.aab`
+2.  Upload file `.aab` tersebut ke **Google Play Console** > **Production** > **Create Release**.
+
+---
+
 *Dibuat oleh Assistant - 2025*
