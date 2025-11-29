@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
 
 export default function PrayerTimes() {
@@ -6,12 +6,25 @@ export default function PrayerTimes() {
     const [nextPrayer, setNextPrayer] = useState(null);
     const [countdown, setCountdown] = useState('--:--:--');
     const [locationName, setLocationName] = useState('Locating...');
+    const audioRef = useRef(new Audio());
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    // Audio Sources
+    // Audio Sources
+    // Using local files (downloaded from GitHub)
+    const ADZAN_FAJR = '/audio/adzan-fajr.mp3';
+    const ADZAN_NORMAL = '/audio/adzan-normal.mp3';
 
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(success, error);
         } else {
             fallbackLocation();
+        }
+
+        // Request Notification Permission on load
+        if ("Notification" in window) {
+            Notification.requestPermission();
         }
     }, []);
 
@@ -55,6 +68,35 @@ export default function PrayerTimes() {
         }
     };
 
+    const playAdzan = (prayerName) => {
+        const isFajr = prayerName.toLowerCase() === 'fajr';
+        const audioSrc = isFajr ? ADZAN_FAJR : ADZAN_NORMAL;
+
+        // Only update src if it's different to avoid reloading if already set (though here we want to ensure correct one)
+        if (audioRef.current.src !== audioSrc) {
+            audioRef.current.src = audioSrc;
+        }
+
+        audioRef.current.play().catch(e => {
+            console.error("Audio play failed:", e);
+            alert("Gagal memutar suara. Pastikan file audio sudah terdownload dengan benar.");
+        });
+        setIsPlaying(true);
+
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(`It's time for ${prayerName} prayer!`, {
+                body: isFajr ? "As-salatu Khayrum Minan Naum" : "Hayya 'alas-salah",
+                icon: "/vite.svg"
+            });
+        }
+    };
+
+    const stopAdzan = () => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsPlaying(false);
+    };
+
     const updateCountdown = () => {
         if (!prayerTimes) return;
 
@@ -71,6 +113,15 @@ export default function PrayerTimes() {
                     minDiff = diff;
                     next = { name, time };
                 }
+            }
+        }
+
+        // Check if we just passed a prayer time
+        for (const name of timeNames) {
+            const time = prayerTimes[name];
+            const diff = Math.abs(now - time);
+            if (diff < 1500 && !isPlaying) { // 1.5 seconds tolerance
+                playAdzan(name);
             }
         }
 
@@ -106,6 +157,22 @@ export default function PrayerTimes() {
                     <div className="label">Next Prayer</div>
                     <h2>{nextPrayer?.name.charAt(0).toUpperCase() + nextPrayer?.name.slice(1)}</h2>
                     <div className="countdown">{countdown}</div>
+                </div>
+                <div style={{ marginTop: '15px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    {!isPlaying ? (
+                        <>
+                            <button className="icon-btn" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '20px', padding: '5px 15px', fontSize: '14px' }} onClick={() => playAdzan('Dhuhr')}>
+                                <i className="fa-solid fa-volume-high"></i> Test Adzan
+                            </button>
+                            <button className="icon-btn" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '20px', padding: '5px 15px', fontSize: '14px' }} onClick={() => playAdzan('Fajr')}>
+                                <i className="fa-solid fa-moon"></i> Test Shubuh
+                            </button>
+                        </>
+                    ) : (
+                        <button className="icon-btn" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '20px', padding: '5px 15px', fontSize: '14px' }} onClick={stopAdzan}>
+                            <i className="fa-solid fa-stop"></i> Stop Adzan
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="prayer-times-list">
