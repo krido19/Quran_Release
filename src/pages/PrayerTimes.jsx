@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 export default function PrayerTimes() {
     const [prayerTimes, setPrayerTimes] = useState(null);
@@ -35,10 +36,18 @@ export default function PrayerTimes() {
             fallbackLocation();
         }
 
-        // Request Notification Permission on load
-        if ("Notification" in window) {
-            Notification.requestPermission();
-        }
+        // Request Notification Permission on load (Web & Native)
+        const requestPermissions = async () => {
+            if ("Notification" in window) {
+                Notification.requestPermission();
+            }
+            try {
+                await LocalNotifications.requestPermissions();
+            } catch (e) {
+                console.log("Native notifications not available (running in browser?)");
+            }
+        };
+        requestPermissions();
     }, []);
 
     useEffect(() => {
@@ -48,7 +57,11 @@ export default function PrayerTimes() {
 
     useEffect(() => {
         localStorage.setItem('adzanSettings', JSON.stringify(adzanSettings));
-    }, [adzanSettings]);
+        // Reschedule notifications when settings change
+        if (prayerTimes) {
+            scheduleDailyNotifications(prayerTimes);
+        }
+    }, [adzanSettings, prayerTimes]);
 
     const success = (position) => {
         const { latitude, longitude } = position.coords;
@@ -73,6 +86,50 @@ export default function PrayerTimes() {
         const times = new AdhanPrayerTimes(coordinates, date, params);
 
         setPrayerTimes(times);
+        scheduleDailyNotifications(times);
+    };
+
+    const scheduleDailyNotifications = async (times) => {
+        try {
+            // Cancel existing notifications first to avoid duplicates
+            const pending = await LocalNotifications.getPending();
+            if (pending.notifications.length > 0) {
+                await LocalNotifications.cancel(pending);
+            }
+
+            const notificationsToSchedule = [];
+            const timeNames = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+            let idCounter = 1;
+
+            for (const name of timeNames) {
+                const time = times[name];
+                const setting = adzanSettings[name] || 'sound';
+
+                if (setting === 'off') continue;
+                if (time < new Date()) continue; // Skip past times
+
+                const isFajr = name === 'fajr';
+                const title = `It's time for ${name} prayer!`;
+                const body = isFajr ? "As-salatu Khayrum Minan Naum" : "Hayya 'alas-salah";
+
+                notificationsToSchedule.push({
+                    title: title,
+                    body: body,
+                    id: idCounter++,
+                    schedule: { at: time },
+                    sound: setting === 'sound' ? (isFajr ? 'adzan_fajr.mp3' : 'adzan_normal.mp3') : undefined,
+                    actionTypeId: "",
+                    extra: null
+                });
+            }
+
+            if (notificationsToSchedule.length > 0) {
+                await LocalNotifications.schedule({ notifications: notificationsToSchedule });
+                console.log("Scheduled native notifications:", notificationsToSchedule.length);
+            }
+        } catch (e) {
+            console.log("Error scheduling native notifications (browser mode?)", e);
+        }
     };
 
     const fetchLocationName = async (lat, lng) => {
@@ -94,6 +151,7 @@ export default function PrayerTimes() {
         const isFajr = key === 'fajr';
 
         // Play Audio only if setting is 'sound'
+        // This is for FOREGROUND playback (when app is open)
         if (setting === 'sound') {
             const audioSrc = isFajr ? ADZAN_FAJR : ADZAN_NORMAL;
 
@@ -109,6 +167,7 @@ export default function PrayerTimes() {
             setIsPlaying(true);
         }
 
+        // Web Notification (Foreground)
         if ("Notification" in window && Notification.permission === "granted") {
             new Notification(`It's time for ${prayerName} prayer!`, {
                 body: isFajr ? "As-salatu Khayrum Minan Naum" : "Hayya 'alas-salah",
@@ -125,7 +184,23 @@ export default function PrayerTimes() {
 
     const startSimulation = () => {
         // Set simulated time to 10 seconds from now
-        setSimulatedTime(new Date(Date.now() + 10000));
+        const simTime = new Date(Date.now() + 10000);
+        setSimulatedTime(simTime);
+
+        // Schedule a native notification for simulation
+        try {
+            LocalNotifications.schedule({
+                notifications: [{
+                    title: "Simulasi Adzan",
+                    body: "Ini adalah tes notifikasi native.",
+                    id: 999,
+                    schedule: { at: simTime },
+                    sound: null
+                }]
+            });
+        } catch (e) {
+            console.log("Native sim failed");
+        }
     };
 
     const toggleSetting = (prayerName) => {
