@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 export default function SurahDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [surah, setSurah] = useState(null);
     const [verses, setVerses] = useState([]);
     const [audioSrc, setAudioSrc] = useState(null);
@@ -30,6 +31,22 @@ export default function SurahDetail() {
                 fetchVerses(1);
             });
     }, [id]);
+
+    // Auto-scroll to target verse if provided
+    useEffect(() => {
+        if (location.state?.targetVerse && verses.length > 0) {
+            const targetKey = location.state.targetVerse;
+            const index = verses.findIndex(v => v.verse_key === targetKey);
+            if (index !== -1) {
+                // Small delay to ensure rendering
+                setTimeout(() => {
+                    scrollToVerse(index);
+                    // Clear state to prevent re-scrolling
+                    window.history.replaceState({}, document.title);
+                }, 500);
+            }
+        }
+    }, [verses, location.state]);
 
     // Fetch Verses with Pagination
     const fetchVerses = (pageNumber) => {
