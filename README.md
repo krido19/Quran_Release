@@ -97,7 +97,7 @@ Agar tidak perlu install Android Studio di laptop (berat), gunakan GitHub Action
 | Masalah | Penyebab | Solusi |
 | :--- | :--- | :--- |
 | **Audio Error (Network)** | URL eksternal diblokir/lambat | Pakai file lokal di `public/` |
-| **Stuck Loading Prayer** | GPS tidak dapat sinyal | Tambah timeout & lokasi default |
+| **Stuck Loading Prayer** | GPS tidak dapat sinyal / Izin ditolak | Pastikan izin **Lokasi Akurat** (Fine Location) diberikan & GPS aktif |
 | **Bookmark Kosong** | ID disimpan sebagai String ("1") tapi dicek sebagai Int (1) | Selalu `parseInt()` ID sebelum simpan/cek |
 | **Build Android Gagal** | Versi Java tidak cocok | Pastikan pakai Java 21 di GitHub Actions |
 | **Tombol Tidak Terbaca** | Warna hardcoded (misal: black) di Dark Mode | Ganti warna pakai `var(--text-main)` |
@@ -149,6 +149,27 @@ Saat build release, sistem menggunakan Keystore yang sudah digenerate.
 ### D. Upload ke Play Console
 1.  File hasil build ada di: `android/app/build/outputs/bundle/release/app-release.aab`
 2.  Upload file `.aab` tersebut ke **Google Play Console** > **Production** > **Create Release**.
+
+---
+
+## 8. Distribusi Manual (APK)
+
+Jika tidak ingin upload ke Play Store, Anda bisa membuat file APK untuk dibagikan manual (WhatsApp, GitHub, dll).
+
+### Build Command
+```bash
+cd android
+./gradlew assembleRelease
+```
+
+### Lokasi File
+File APK akan muncul di:
+`android/app/build/outputs/apk/release/app-release.apk`
+
+### Cara Install
+1.  Kirim file `.apk` ke HP Android.
+2.  Buka file tersebut.
+3.  Izinkan "Install from unknown sources" jika diminta.
 
 ---
 
