@@ -15,6 +15,10 @@ export default function Navbar() {
                 <i className="fa-solid fa-kaaba"></i>
                 <span>Qibla</span>
             </NavLink>
+            <NavLink to="/tasbih" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <i className="fa-solid fa-fingerprint"></i>
+                <span>Tasbih</span>
+            </NavLink>
             <NavLink to="/profile" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <i className="fa-regular fa-user"></i>
                 <span>Profile</span>

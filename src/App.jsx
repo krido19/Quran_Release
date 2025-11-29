@@ -6,6 +6,7 @@ import QuranList from './pages/QuranList';
 import SurahDetail from './pages/SurahDetail';
 import PrayerTimes from './pages/PrayerTimes';
 import QiblaCompass from './pages/QiblaCompass';
+import Tasbih from './pages/Tasbih';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 
@@ -21,6 +22,7 @@ function App() {
               <Route path="/surah/:id" element={<SurahDetail />} />
               <Route path="/prayer" element={<PrayerTimes />} />
               <Route path="/qibla" element={<QiblaCompass />} />
+              <Route path="/tasbih" element={<Tasbih />} />
               <Route path="/profile" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
             </Routes>
