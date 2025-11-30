@@ -1,7 +1,50 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { toBlob } from 'html-to-image';
 
 export default function SurahDetail() {
+    const [shareVerseData, setShareVerseData] = useState(null);
+    const shareCardRef = useRef(null);
+
+    const shareVerse = (verse) => {
+        // Try to get Indonesian translation (33), fallback to English (131)
+        const translationObj = verse.translations.find(t => t.resource_id === 33) ||
+            verse.translations.find(t => t.resource_id === 131);
+        const translation = translationObj ? translationObj.text.replace(/<[^>]*>?/gm, '') : '';
+
+        setShareVerseData({
+            surahName: surah.name_simple,
+            verseNumber: verse.verse_key.split(':')[1],
+            arabic: verse.text_uthmani,
+            translation: translation
+        });
+    };
+
+    const handleShareImage = async () => {
+        if (shareCardRef.current) {
+            try {
+                const blob = await toBlob(shareCardRef.current, { cacheBust: true });
+                const file = new File([blob], `verse-${shareVerseData.surahName}-${shareVerseData.verseNumber}.png`, { type: 'image/png' });
+
+                if (navigator.share) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Share Verse',
+                        text: 'Shared from Islamic App'
+                    });
+                } else {
+                    // Fallback download
+                    const link = document.createElement('a');
+                    link.download = `verse-${shareVerseData.surahName}-${shareVerseData.verseNumber}.png`;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                }
+            } catch (err) {
+                console.error('Error sharing image:', err);
+                alert('Gagal membuat gambar. Coba lagi.');
+            }
+        }
+    };
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -144,6 +187,20 @@ export default function SurahDetail() {
         }
     };
 
+    // Save Last Read
+    useEffect(() => {
+        if (surah && verses.length > 0 && verses[currentVerseIndex]) {
+            const lastReadData = {
+                surahId: surah.id,
+                surahName: surah.name_simple,
+                verseNumber: verses[currentVerseIndex].verse_key.split(':')[1],
+                verseKey: verses[currentVerseIndex].verse_key,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('lastRead', JSON.stringify(lastReadData));
+        }
+    }, [surah, verses, currentVerseIndex]);
+
     const [isSurahBookmarked, setIsSurahBookmarked] = useState(false);
 
     useEffect(() => {
@@ -202,25 +259,6 @@ export default function SurahDetail() {
         }
         setBookmarkedVerses(newBookmarks);
         localStorage.setItem('verse_bookmarks', JSON.stringify(newBookmarks));
-    };
-
-    const shareVerse = (verse) => {
-        // Try to get Indonesian translation (33), fallback to English (131), then empty string
-        const translationObj = verse.translations.find(t => t.resource_id === 33) ||
-            verse.translations.find(t => t.resource_id === 131);
-
-        const translation = translationObj ? translationObj.text.replace(/<[^>]*>?/gm, '') : '';
-        const text = `QS ${surah.name_simple} ${verse.verse_key.split(':')[1]}\n\n${verse.text_uthmani}\n\n${translation}\n\nSent from Islamic App`;
-
-        if (navigator.share) {
-            navigator.share({
-                title: `Surah ${surah.name_simple} Verse ${verse.verse_key.split(':')[1]}`,
-                text: text,
-            }).catch(console.error);
-        } else {
-            navigator.clipboard.writeText(text);
-            alert('Verse copied to clipboard!');
-        }
     };
 
     const handleVersePlay = (index) => {
@@ -359,6 +397,56 @@ export default function SurahDetail() {
                 })}
                 {isLoading && <div className="loading-more" style={{ textAlign: 'center', padding: '20px' }}>Loading more verses...</div>}
             </div>
+            {shareVerseData && (
+                <div className="tasbih-modal" onClick={() => setShareVerseData(null)}>
+                    <div className="tasbih-modal-content" onClick={e => e.stopPropagation()} style={{ width: '90%', maxWidth: '400px', padding: '20px' }}>
+                        <h3 style={{ marginBottom: '15px' }}>Bagikan Ayat</h3>
+
+                        {/* Card Preview */}
+                        <div
+                            ref={shareCardRef}
+                            style={{
+                                background: 'linear-gradient(135deg, #1e1e1e, #2d3748)',
+                                padding: '30px 20px',
+                                borderRadius: '15px',
+                                color: 'white',
+                                textAlign: 'center',
+                                marginBottom: '20px',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}
+                        >
+                            {/* Decorative Elements */}
+                            <div style={{ position: 'absolute', top: '-20px', left: '-20px', width: '100px', height: '100px', background: 'rgba(255,215,0,0.1)', borderRadius: '50%' }}></div>
+                            <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '80px', height: '80px', background: 'rgba(76, 175, 80, 0.1)', borderRadius: '50%' }}></div>
+
+                            <div style={{ fontSize: '14px', opacity: 0.8, marginBottom: '20px', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                QS {shareVerseData.surahName} : {shareVerseData.verseNumber}
+                            </div>
+                            <div style={{ fontSize: '24px', fontFamily: 'Amiri, serif', marginBottom: '20px', lineHeight: '1.8' }}>
+                                {shareVerseData.arabic}
+                            </div>
+                            <div style={{ fontSize: '14px', fontStyle: 'italic', opacity: 0.9, lineHeight: '1.5' }}>
+                                "{shareVerseData.translation}"
+                            </div>
+                            <div style={{ marginTop: '20px', fontSize: '10px', opacity: 0.5 }}>
+                                Islamic App
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button className="tasbih-modal-btn secondary" onClick={() => setShareVerseData(null)}>
+                                Batal
+                            </button>
+                            <button className="tasbih-modal-btn primary" onClick={handleShareImage}>
+                                <i className="fa-solid fa-share-nodes" style={{ marginRight: '8px' }}></i>
+                                Bagikan Gambar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
