@@ -267,4 +267,14 @@ Masalah umum: Halaman tidak bisa di-scroll atau terpotong di browser HP (Chrome/
     3.  Push ke remote: `git push -u origin nama-fitur-baru`
     4.  Buat Pull Request (PR) di GitHub untuk merge ke main.
 
+### G. Redesign Kompas Kiblat (Premium UI)
+- **Masalah**: Tampilan kompas awal terlalu sederhana dan kurang menarik ("jelek").
+- **Solusi**:
+  - **Glassmorphism**: Menggunakan panel kaca transparan (`.glass-panel`) untuk wadah kompas.
+  - **Metallic Dial**: Menambahkan dial dengan gradien metalik realistis yang berputar sesuai arah mata angin.
+  - **3D Gold Needle**: Mengganti panah kartun dengan jarum emas 3D (`.qibla-arrow-premium`) yang lebih elegan dan presisi.
+  - **Kaaba Icon**: Menambahkan ikon Ka'bah pada dial kompas sebagai target visual yang ditunjuk oleh jarum.
+  - **City Name**: Menambahkan fitur Reverse Geocoding (OpenStreetMap) untuk menampilkan nama kota pengguna (misal: "Jakarta Selatan") secara otomatis.
+  - **Kalibrasi**: Menambahkan tombol "Kalibrasi Kompas" yang meminta izin Gyroscope (iOS) dan menampilkan instruksi gerakan angka 8.
+
 ---

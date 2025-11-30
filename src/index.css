@@ -345,43 +345,118 @@ body.dark-mode .prayer-row.active {
   height: 60vh;
 }
 
-.compass {
-  width: 250px;
-  height: 250px;
+.compass-dial-premium {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  background: var(--bg-card);
-  position: relative;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 40px;
+  position: absolute;
+  /* Metallic Gradient Background */
+  background: conic-gradient(from 0deg, #f3f4f6, #d1d5db, #f3f4f6, #d1d5db, #f3f4f6);
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.1),
+    0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  border: 8px solid #fff;
 }
 
-.compass-arrow {
-  width: 40px;
-  height: 140px;
-  background: url('https://cdn-icons-png.flaticon.com/512/6157/6157688.png') no-repeat center/contain;
+body.dark-mode .compass-dial-premium {
+  background: conic-gradient(from 0deg, #1f2937, #374151, #1f2937, #374151, #1f2937);
+  border-color: #111827;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.compass-ticks {
   position: absolute;
-  transition: transform 0.1s ease-out;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  border: 2px dashed rgba(0, 0, 0, 0.1);
 }
 
-.compass::after {
-  content: 'N';
+body.dark-mode .compass-ticks {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.qibla-arrow-premium {
   position: absolute;
-  top: 10px;
-  font-weight: bold;
-  color: var(--accent);
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 70px;
+  background: linear-gradient(90deg, #FFD700 50%, #B8860B 50%);
+  transform-origin: bottom center;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+  z-index: 10;
+  border-radius: 0;
 }
 
-.qibla-info {
-  text-align: center;
+/* Removed ::after as the needle is now a single shape */
+.qibla-arrow-premium::after {
+  content: none;
+}
+
+.degree-display {
+  font-size: 64px;
+  font-weight: 200;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1;
 }
 
 .qibla-info h3 {
-  font-size: 32px;
+  font-size: 24px;
   color: var(--primary);
   margin-top: 8px;
+  font-weight: 600;
+}
+
+.btn-calibration {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-calibration:active {
+  background: var(--primary);
+  color: white;
+  transform: scale(0.95);
+}
+
+.calibration-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.calibration-content {
+  background: var(--bg-card);
+  padding: 30px;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 /* Surah Detail Styles */
