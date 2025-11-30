@@ -459,6 +459,109 @@ body.dark-mode .compass-ticks {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
+.tasbih-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.tasbih-modal-content {
+  background: var(--bg-card);
+  padding: 30px;
+  border-radius: 24px;
+  text-align: center;
+  width: 80%;
+  max-width: 300px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tasbih-modal-btn {
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+  width: 100%;
+}
+
+.tasbih-modal-btn.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.tasbih-modal-btn.secondary {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+/* Tasbih History Styles */
+.tasbih-history-list {
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  text-align: left;
+  margin-top: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-date {
+  opacity: 0.6;
+  font-size: 12px;
+}
+
+.history-count {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.sound-toggle {
+  background: var(--bg-card);
+  border: 1px solid var(--text-muted);
+  color: var(--text-main);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sound-toggle.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
 /* Surah Detail Styles */
 .detail-header {
   display: flex;

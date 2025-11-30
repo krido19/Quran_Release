@@ -277,4 +277,12 @@ Masalah umum: Halaman tidak bisa di-scroll atau terpotong di browser HP (Chrome/
   - **City Name**: Menambahkan fitur Reverse Geocoding (OpenStreetMap) untuk menampilkan nama kota pengguna (misal: "Jakarta Selatan") secara otomatis.
   - **Kalibrasi**: Menambahkan tombol "Kalibrasi Kompas" yang meminta izin Gyroscope (iOS) dan menampilkan instruksi gerakan angka 8.
 
+### H. Tasbih Digital Enhancements
+- **Fitur Baru**:
+  - **Target Notification**: Modal popup "Target Tercapai!" muncul saat hitungan mencapai target (33, 99, dll) dengan opsi Reset/Lanjut.
+  - **Volume Button Counting**: Memungkinkan pengguna menghitung menggunakan tombol fisik Volume Up/Down (berguna untuk dzikir tanpa melihat layar).
+  - **Click Sound**: Efek suara "klik" mekanis yang memuaskan pada setiap tap (bisa di-mute).
+  - **Dhikr History**: Riwayat dzikir tersimpan otomatis saat Reset, lengkap dengan tanggal dan jumlah hitungan.
+  - **Auto-Save**: Penjelasan visual bahwa data tersimpan otomatis saat reset.
+
 ---
