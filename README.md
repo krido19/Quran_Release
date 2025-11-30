@@ -233,3 +233,38 @@ Masalah umum: Halaman tidak bisa di-scroll atau terpotong di browser HP (Chrome/
 3.  **Hindari Absolute Positioning untuk Scroll**:
     -   Jangan gunakan `position: absolute` pada konten yang perlu di-scroll jika bisa dihindari. Gunakan flow normal dengan `overflow-y: auto` pada parent container.
 
+### C. Sticky Header & Glassmorphism (UI/UX)
+-   **Masalah**: Header audio player ikut ter-scroll ke atas (hilang) saat user scroll daftar Asmaul Husna. Desain awal terlihat "kotak" dan kaku.
+-   **Solusi Sticky**:
+    -   Gunakan `position: sticky; top: 0; z-index: 100;` pada container player.
+    -   *Penting*: Pastikan parent container tidak memiliki `overflow: hidden` yang salah, atau sticky tidak akan jalan.
+-   **Solusi Desain (Glassmorphism)**:
+    -   Gunakan efek "kaca buram" agar terlihat premium dan modern.
+    -   CSS Class `.glass-panel`:
+        ```css
+        background: rgba(255, 255, 255, 0.85); /* Semi-transparent */
+        backdrop-filter: blur(12px); /* Efek blur konten di belakangnya */
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        ```
+    -   Untuk **Dark Mode**, sesuaikan background menjadi `rgba(31, 41, 55, 0.85)`.
+
+### D. Theme Toggle (Dark Mode)
+-   **Masalah**: Tombol toggle hanya berupa icon melayang, terlihat kurang rapi ("jelek").
+-   **Solusi**:
+    -   Ubah menjadi tombol fisik dengan `width/height: 40px` dan `border-radius: 12px`.
+    -   Berikan `background: var(--bg-card)` dan `box-shadow` agar terlihat seperti tombol timbul (neumorphism halus).
+    -   Pastikan icon berada di tengah dengan `display: flex; align-items: center; justify-content: center;`.
+
+### E. Redundant Menu Items
+-   **Masalah**: Menu "Arah Kiblat" ada di halaman "Lainnya", padahal sudah ada di Navbar bawah. Ini membingungkan user.
+-   **Solusi**: Hapus item duplikat dari `Menu.jsx` untuk menjaga UI tetap bersih dan efisien.
+
+### F. Git Branching Strategy
+-   **Best Practice**: Jangan push langsung ke `main` jika fitur belum stabil.
+-   **Langkah**:
+    1.  Buat branch baru: `git checkout -b nama-fitur-baru`
+    2.  Commit perubahan: `git commit -m "feat: deskripsi"`
+    3.  Push ke remote: `git push -u origin nama-fitur-baru`
+    4.  Buat Pull Request (PR) di GitHub untuk merge ke main.
+
+---
