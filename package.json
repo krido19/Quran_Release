@@ -17,6 +17,7 @@
     "@capacitor/haptics": "^7.0.2",
     "@capacitor/local-notifications": "^7.0.3",
     "@capacitor/motion": "^7.0.1",
+    "@capacitor/preferences": "^7.0.2",
     "@supabase/supabase-js": "^2.86.0",
     "adhan": "^4.4.3",
     "html-to-image": "^1.11.13",

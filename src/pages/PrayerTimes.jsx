@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Geolocation } from '@capacitor/geolocation';
+import { Preferences } from '@capacitor/preferences';
 import { getHijriDate } from '../lib/hijri';
 
 export default function PrayerTimes() {
@@ -9,6 +10,46 @@ export default function PrayerTimes() {
     const [nextPrayer, setNextPrayer] = useState(null);
     const [countdown, setCountdown] = useState('--:--:--');
     const [locationName, setLocationName] = useState('Locating...');
+    // ... (rest of state)
+
+    // ... (existing useEffects)
+
+    // Save data for Android Widget
+    useEffect(() => {
+        if (prayerTimes && nextPrayer) {
+            const saveData = async () => {
+                const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                const formattedDate = new Date().toLocaleDateString('id-ID', dateOptions);
+
+                const widgetData = {
+                    location: locationName,
+                    date: formattedDate,
+                    nextPrayerName: nextPrayer.name.charAt(0).toUpperCase() + nextPrayer.name.slice(1),
+                    nextPrayerTime: formatTime(nextPrayer.time),
+                    Subuh: formatTime(prayerTimes.fajr),
+                    Dzuhur: formatTime(prayerTimes.dhuhr),
+                    Ashar: formatTime(prayerTimes.asr),
+                    Maghrib: formatTime(prayerTimes.maghrib),
+                    Isya: formatTime(prayerTimes.isha)
+                };
+
+                try {
+                    await Preferences.set({
+                        key: 'widgetData',
+                        value: JSON.stringify(widgetData)
+                    });
+                    // Trigger widget update (optional, but good if we had a native plugin for it)
+                    // For now, the widget updates on its own schedule or when app opens/closes if we added that logic.
+                    // But saving to prefs is enough for the widget to read on its next update.
+                } catch (e) {
+                    console.error("Failed to save widget data", e);
+                }
+            };
+            saveData();
+        }
+    }, [prayerTimes, nextPrayer, locationName]);
+
+    // ... (rest of component)
     const audioRef = useRef(new Audio());
     const [isPlaying, setIsPlaying] = useState(false);
     const [simulatedTime, setSimulatedTime] = useState(null);
