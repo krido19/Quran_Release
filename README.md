@@ -286,3 +286,23 @@ Masalah umum: Halaman tidak bisa di-scroll atau terpotong di browser HP (Chrome/
   - **Auto-Save**: Penjelasan visual bahwa data tersimpan otomatis saat reset.
 
 ---
+
+---
+
+## 10. Copyright & Attribution (Hak Cipta)
+
+### A. Kode Sumber (Source Code)
+-   **Lisensi**: Proyek ini menggunakan lisensi **MIT**. Anda bebas menggunakan, memodifikasi, dan mendistribusikan ulang kode ini untuk keperluan pribadi maupun komersial.
+-   **Library**: Semua library pihak ketiga (React, Vite, Capacitor, dll) menggunakan lisensi open-source yang kompatibel (MIT/Apache/BSD).
+
+### B. Data & API
+-   **Al-Quran**: Data teks ayat, terjemahan, dan tafsir diambil dari **Quran.com API** (pi.quran.com).
+    -   *Attribution*: 'Quran text and translations provided by Quran.com'.
+-   **Jadwal Sholat**: Perhitungan waktu sholat menggunakan library dhan-js.
+
+### C. Aset Audio (PENTING)
+-   **Murottal (Ayat)**: Audio per-ayat di-stream langsung dari server **Quran.com** (erses.quran.com). Hak cipta rekaman milik masing-masing Qari/Penerbit yang bekerjasama dengan Quran.com.
+-   **Doa Harian & Adzan**:
+    -   File audio doa harian (doa-sebelum-makan.mp3, dll) dan Adzan yang ada di folder public/audio atau repository quran-assets adalah aset custom.
+    -   **Peringatan**: Jika Anda menggunakan proyek ini, pastikan Anda memiliki hak untuk menggunakan file audio tersebut atau ganti dengan rekaman Anda sendiri/file bebas royalti (No Copyright) untuk menghindari klaim hak cipta (Copyright Strike) di YouTube atau Play Store.
+
