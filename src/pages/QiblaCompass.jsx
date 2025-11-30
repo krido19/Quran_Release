@@ -45,13 +45,30 @@ export default function QiblaCompass() {
 
     const getLocation = async () => {
         try {
-            const position = await Geolocation.getCurrentPosition();
+            // Check permissions first
+            const permissionStatus = await Geolocation.checkPermissions();
+
+            if (permissionStatus.location !== 'granted') {
+                const request = await Geolocation.requestPermissions();
+                if (request.location !== 'granted') {
+                    throw new Error("Location permission denied");
+                }
+            }
+
+            // Get position with high accuracy and timeout
+            const position = await Geolocation.getCurrentPosition({
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 3000
+            });
+
             setLocation(position.coords);
             calculateQibla(position.coords.latitude, position.coords.longitude);
             getCityName(position.coords.latitude, position.coords.longitude);
+            setError(null); // Clear error if successful
         } catch (e) {
             console.error("Error getting location", e);
-            setError("Gagal mendapatkan lokasi. Pastikan GPS aktif.");
+            setError(`Gagal mendapatkan lokasi: ${e.message || e}. Pastikan GPS aktif.`);
             // Fallback to Jakarta
             calculateQibla(-6.2088, 106.8456);
             setCityName("Jakarta (Default)");
@@ -78,18 +95,21 @@ export default function QiblaCompass() {
         const phi = lat * Math.PI / 180.0;
         const lambda = lng * Math.PI / 180.0;
 
-        const psi = 180.0 / Math.PI * Math.atan2(
+        let psi = 180.0 / Math.PI * Math.atan2(
             Math.sin(lambdaK - lambda),
             Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
         );
+
+        // Normalize to 0-360
+        if (psi < 0) {
+            psi += 360;
+        }
 
         setQiblaDirection(psi);
     };
 
     const startCompass = async () => {
         try {
-            // Check if Motion plugin is available (Native)
-            // Or use DeviceOrientation API (Web)
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 // iOS 13+ requires permission
                 const response = await DeviceOrientationEvent.requestPermission();
@@ -97,7 +117,13 @@ export default function QiblaCompass() {
                     window.addEventListener('deviceorientation', handleOrientation);
                 }
             } else {
-                window.addEventListener('deviceorientation', handleOrientation);
+                // Android / Non-iOS
+                // Try absolute orientation first (for Android)
+                if ('ondeviceorientationabsolute' in window) {
+                    window.addEventListener('deviceorientationabsolute', handleOrientation);
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                }
             }
         } catch (e) {
             console.error(e);
@@ -106,6 +132,9 @@ export default function QiblaCompass() {
 
     const stopCompass = () => {
         window.removeEventListener('deviceorientation', handleOrientation);
+        if ('ondeviceorientationabsolute' in window) {
+            window.removeEventListener('deviceorientationabsolute', handleOrientation);
+        }
     };
 
     const handleOrientation = (event) => {
@@ -115,11 +144,33 @@ export default function QiblaCompass() {
         if (event.webkitCompassHeading) {
             alpha = event.webkitCompassHeading;
         }
-        // Android (Chrome) - alpha is counter-clockwise, so we might need to adjust
-        // But standard 'alpha' usually works for basic north.
-        // Ideally we use 'deviceorientationabsolute' for Android if available.
+        // Android Absolute Handling
+        else if (event.absolute === false && event.alpha !== null) {
+            // If absolute is explicitly false, it might be relative. 
+            // But usually deviceorientationabsolute event guarantees absolute.
+            // If we are in standard deviceorientation and absolute is false, it's relative.
+            // We'll stick with alpha for now but absolute event is preferred.
+        }
 
-        // For simplicity in this hybrid app:
+        // Correct for Android's alpha being counter-clockwise in some contexts?
+        // Actually standard Web API says alpha is 0 at North, increasing counter-clockwise? 
+        // No, standard is: Z axis, 0 is North. Positive is Counter-Clockwise?
+        // iOS webkitCompassHeading is Clockwise (0=N, 90=E).
+        // Standard alpha is Counter-Clockwise (0=N, 90=W).
+
+        // Let's normalize.
+        // If iOS: use webkitCompassHeading (Clockwise).
+        // If Android: alpha is usually Counter-Clockwise from North.
+        // So Heading (Clockwise) = 360 - alpha.
+
+        if (!event.webkitCompassHeading && alpha !== null) {
+            alpha = 360 - alpha; // Convert to Clockwise
+        }
+
+        // Normalize to 0-360
+        if (alpha < 0) alpha += 360;
+        if (alpha >= 360) alpha -= 360;
+
         setHeading(alpha);
     };
 

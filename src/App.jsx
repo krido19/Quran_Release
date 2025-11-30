@@ -40,6 +40,28 @@ const DeepLinkHandler = () => {
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
+  useEffect(() => {
+    const requestPermissions = async () => {
+      try {
+        // Request Location Permission
+        const locationStatus = await import('@capacitor/geolocation').then(m => m.Geolocation.checkPermissions());
+        if (locationStatus.location !== 'granted') {
+          await import('@capacitor/geolocation').then(m => m.Geolocation.requestPermissions());
+        }
+
+        // Request Notification Permission
+        const notificationStatus = await import('@capacitor/local-notifications').then(m => m.LocalNotifications.checkPermissions());
+        if (notificationStatus.display !== 'granted') {
+          await import('@capacitor/local-notifications').then(m => m.LocalNotifications.requestPermissions());
+        }
+      } catch (e) {
+        console.error("Error requesting permissions:", e);
+      }
+    };
+
+    requestPermissions();
+  }, []);
+
   return (
     <>
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}

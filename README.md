@@ -3,27 +3,6 @@
 Dokumen ini berisi catatan lengkap proses pengembangan aplikasi Al-Quran & Jadwal Sholat berbasis React + Capacitor. Panduan ini dibuat agar di masa depan, pembuatan aplikasi serupa bisa lebih cepat dengan menghindari masalah yang sama.
 
 ---
-
-## 1. Tech Stack
--   **Frontend**: React.js (Vite)
--   **Styling**: Vanilla CSS (dengan CSS Variables untuk Theming)
--   **Mobile Framework**: Capacitor (untuk convert Web ke Android APK)
--   **State Management**: React `useState`, `useEffect`, `localStorage`
--   **Icons**: FontAwesome
-
----
-
-## 2. Fitur Utama & Implementasi
-
-### A. Al-Quran (API & Caching)
--   **Sumber Data**: API dari `api.quran.com`.
--   **Masalah**: Fetching data setiap kali buka surat bikin lambat dan boros kuota.
--   **Solusi**: Gunakan `localStorage` untuk caching sederhana. Cek dulu di storage, kalau kosong baru fetch API.
--   **Bookmark**:
-    -   Simpan ID Surat & Ayat di `localStorage` (`quran_bookmarks`, `verse_bookmarks`).
-    -   *Penting*: Pastikan ID disimpan/dibaca sebagai **Integer** (`parseInt`) agar tidak error saat filtering.
-
-### B. Jadwal Sholat (Adhan.js & Lokasi)
 -   **Library**: `adhan` (JavaScript library untuk perhitungan waktu sholat).
 -   **Lokasi (GPS)**:
     -   **Web**: Pakai `navigator.geolocation`.

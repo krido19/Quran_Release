@@ -149,7 +149,9 @@ export default function Tasbih() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexDirection: 'column',
-                    transition: 'transform 0.1s'
+                    transition: 'transform 0.1s',
+                    WebkitTapHighlightColor: 'transparent',
+                    outline: 'none'
                 }}
             >
                 <i className="fa-solid fa-fingerprint" style={{ fontSize: '40px', marginBottom: '10px', opacity: 0.7 }}></i>
@@ -163,10 +165,14 @@ export default function Tasbih() {
                     style={{
                         background: 'rgba(255, 0, 0, 0.1)',
                         color: '#ef4444',
-                        padding: '10px 20px',
+                        padding: '10px 40px',
                         borderRadius: '20px',
                         fontWeight: 'bold',
-                        border: '1px solid rgba(255, 0, 0, 0.2)'
+                        border: '1px solid rgba(255, 0, 0, 0.2)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
                     }}
                 >
                     <i className="fa-solid fa-rotate-right"></i> Reset
