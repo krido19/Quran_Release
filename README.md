@@ -264,6 +264,12 @@ Masalah umum: Halaman tidak bisa di-scroll atau terpotong di browser HP (Chrome/
   - **Dhikr History**: Riwayat dzikir tersimpan otomatis saat Reset, lengkap dengan tanggal dan jumlah hitungan.
   - **Auto-Save**: Penjelasan visual bahwa data tersimpan otomatis saat reset.
 
+### I. Prayer Times UI Improvements
+- **Refresh Location Button**:
+  - Menambahkan tombol "Refresh Lokasi" manual di halaman Jadwal Sholat.
+  - Berguna jika GPS lambat lock saat awal buka aplikasi.
+  - Styling tombol disamakan dengan tombol "Aktifkan Lokasi" (Kuning/Rounded) untuk konsistensi UI.
+
 ---
 
 ---

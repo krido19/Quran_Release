@@ -412,6 +412,28 @@ export default function PrayerTimes() {
                         </div>
                     )}
 
+                    <div style={{ marginTop: '5px', marginBottom: '10px' }}>
+                        <button
+                            onClick={checkLocationPermission}
+                            style={{
+                                background: '#ffc107',
+                                color: 'black',
+                                border: 'none',
+                                padding: '8px 16px',
+                                borderRadius: '20px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '12px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px'
+                            }}
+                        >
+                            <i className="fa-solid fa-rotate-right"></i>
+                            Refresh Lokasi
+                        </button>
+                    </div>
+
                     <div className="label" style={{ marginTop: '10px' }}>Next Prayer</div>
                     <h2>{nextPrayer?.name.charAt(0).toUpperCase() + nextPrayer?.name.slice(1)}</h2>
                     <div className="countdown">{countdown}</div>
