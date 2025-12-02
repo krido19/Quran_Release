@@ -3,7 +3,8 @@ import packageJson from '../../package.json';
 
 // Placeholder URL - REPLACE THIS with your actual hosted version.json URL
 // Example: 'https://raw.githubusercontent.com/username/repo/main/public/version.json'
-const UPDATE_CHECK_URL = 'https://raw.githubusercontent.com/krido19/Quran/main/public/version.json';
+// Using the Release repo as per user's push target
+const UPDATE_CHECK_URL = 'https://raw.githubusercontent.com/krido19/Quran_Release/main/public/version.json';
 
 export default function SplashScreen({ onFinish }) {
     const [status, setStatus] = useState('loading'); // loading, update-available, error, done

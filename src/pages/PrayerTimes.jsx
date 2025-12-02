@@ -57,15 +57,27 @@ export default function PrayerTimes() {
 
     // Settings State: 'sound' | 'notification' | 'off'
     const [adzanSettings, setAdzanSettings] = useState(() => {
-        const saved = localStorage.getItem('adzanSettings');
-        return saved ? JSON.parse(saved) : {
-            fajr: 'sound',
-            sunrise: 'off', // Default off for sunrise
-            dhuhr: 'sound',
-            asr: 'sound',
-            maghrib: 'sound',
-            isha: 'sound'
-        };
+        try {
+            const saved = localStorage.getItem('adzanSettings');
+            return saved ? JSON.parse(saved) : {
+                fajr: 'sound',
+                sunrise: 'off',
+                dhuhr: 'sound',
+                asr: 'sound',
+                maghrib: 'sound',
+                isha: 'sound'
+            };
+        } catch (e) {
+            console.error("Error parsing adzanSettings:", e);
+            return {
+                fajr: 'sound',
+                sunrise: 'off',
+                dhuhr: 'sound',
+                asr: 'sound',
+                maghrib: 'sound',
+                isha: 'sound'
+            };
+        }
     });
 
     // Audio Sources
@@ -73,27 +85,16 @@ export default function PrayerTimes() {
     const ADZAN_FAJR = '/audio/adzan-fajr.mp3';
     const ADZAN_NORMAL = '/audio/adzan-normal.mp3';
 
-    useEffect(() => {
-        checkLocationPermission();
 
-        // Request Notification Permission on load (Web & Native)
-        const requestPermissions = async () => {
-            if ("Notification" in window) {
-                Notification.requestPermission();
-            }
-            try {
-                await LocalNotifications.requestPermissions();
-            } catch (e) {
-                console.log("Native notifications not available (running in browser?)");
-            }
-        };
-        requestPermissions();
-    }, []);
+
+    const [lastPlayedPrayer, setLastPlayedPrayer] = useState(null);
 
     useEffect(() => {
         const timer = setInterval(updateCountdown, 1000);
         return () => clearInterval(timer);
-    }, [prayerTimes, simulatedTime, adzanSettings]);
+    }, [prayerTimes, simulatedTime, adzanSettings, lastPlayedPrayer]);
+
+    // ... (keep other useEffects)
 
     useEffect(() => {
         localStorage.setItem('adzanSettings', JSON.stringify(adzanSettings));
@@ -323,6 +324,19 @@ export default function PrayerTimes() {
         const now = new Date();
         let next = null;
 
+        // Check if date has changed (midnight), reload prayer times
+        // Use fajr time to check the date of the current prayer times
+        if (prayerTimes && prayerTimes.fajr && prayerTimes.fajr.getDate() !== now.getDate()) {
+            // Re-calculate for new date
+            // We need to trigger calculateTimes again. 
+            // Since we don't have lat/lng stored easily in state (only in closure of success), 
+            // we might need to rely on the location check interval or store lat/lng.
+            // For now, let's just reload the page or trigger a location check if possible.
+            // Simplest: checkLocationPermission() again which calls getCurrentLocation
+            checkLocationPermission();
+            return;
+        }
+
         // Priority: Simulation
         if (simulatedTime) {
             const diff = simulatedTime - now;
@@ -352,14 +366,26 @@ export default function PrayerTimes() {
             // Check if we just passed a prayer time
             for (const name of timeNames) {
                 const time = prayerTimes[name];
-                const diff = Math.abs(now - time);
-                if (diff < 1500 && !isPlaying) { // 1.5 seconds tolerance
-                    playAdzan(name);
+                const diff = now - time; // Positive if now is after time
+
+                // Trigger if within 5 seconds after the time
+                // Using a wider window (5000ms) to ensure we don't miss it due to timer lag
+                if (diff >= 0 && diff < 5000) {
+                    // Prevent double playing: check if we already played this specific prayer
+                    // We use a unique key: name + time string
+                    const prayerKey = `${name}-${time.getTime()}`;
+
+                    if (lastPlayedPrayer !== prayerKey && !isPlaying) {
+                        playAdzan(name);
+                        setLastPlayedPrayer(prayerKey);
+                    }
                 }
             }
 
             // If no next prayer today, it's Fajr tomorrow (simplified)
             if (!next) {
+                // Approximate tomorrow's Fajr (add 24h to today's Fajr)
+                // Ideally we should calculate tomorrow's times, but this is a fallback for display
                 next = { name: 'fajr', time: new Date(prayerTimes.fajr.getTime() + 24 * 60 * 60 * 1000) };
             }
         }
@@ -373,6 +399,23 @@ export default function PrayerTimes() {
 
         setCountdown(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
     };
+
+    useEffect(() => {
+        checkLocationPermission();
+
+        // Request Notification Permission on load (Web & Native)
+        const requestPermissions = async () => {
+            if ("Notification" in window) {
+                Notification.requestPermission();
+            }
+            try {
+                await LocalNotifications.requestPermissions();
+            } catch (e) {
+                console.log("Native notifications not available (running in browser?)");
+            }
+        };
+        requestPermissions();
+    }, []);
 
     if (!prayerTimes) return <div className="view active">Loading Prayer Times...</div>;
 
@@ -435,7 +478,7 @@ export default function PrayerTimes() {
                     </div>
 
                     <div className="label" style={{ marginTop: '10px' }}>Next Prayer</div>
-                    <h2>{nextPrayer?.name.charAt(0).toUpperCase() + nextPrayer?.name.slice(1)}</h2>
+                    <h2>{nextPrayer ? nextPrayer.name.charAt(0).toUpperCase() + nextPrayer.name.slice(1) : '--'}</h2>
                     <div className="countdown">{countdown}</div>
                 </div>
                 <div style={{ marginTop: '15px', display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>

@@ -136,10 +136,7 @@ export default function QuranList() {
                 </button>
             </div>
 
-            {filter === 'bookmarks' && bookmarkedVerses.length > 0 && (
-                <div className="section-title" style={{ padding: '1rem 1rem 0', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                </div>
-            )}
+
 
             <div className="surah-list">
                 {filteredSurahs.map(surah => (
